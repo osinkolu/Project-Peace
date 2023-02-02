@@ -65,7 +65,7 @@ def main():
         st.write("This App was built for the Cohere 2023 hackathon, Project peace is built on top of Cohere's cutting Edge NLP models, and leveraged to help detect hate speech and detoxify them accross various languages")
 
     with st.form(key = 'form1', clear_on_submit=False):
-        text_message = st.text_area("First Job description")
+        text_message = st.text_area("Write message here")
         submit_button = st.form_submit_button()
 
     if submit_button:
