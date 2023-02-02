@@ -66,7 +66,7 @@ def main():
 
     with st.form(key = 'form1', clear_on_submit=False):
         text_message = st.text_area("Write message here")
-        submit_button = st.form_submit_button()
+        submit_button = st.form_submit_button(label="send")
 
     if submit_button:
         if Toxicity_detector(text_message) == "Benign":
