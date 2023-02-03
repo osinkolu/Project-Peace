@@ -3,8 +3,7 @@ import pandas as pd
 import cohere 
 import os
 from streamlit_option_menu import option_menu
-#cohere_api_key = os.environ['cohere_api_key']
-cohere_api_key = "T1OdZvYpypbU24ShULboDcLRPelL5rxvyQU4sBKN"
+cohere_api_key = os.environ['cohere_api_key']
 co = cohere.Client(cohere_api_key)
 from cohere.classify import Example
 
