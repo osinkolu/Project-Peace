@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 import cohere 
 import os
 from streamlit_option_menu import option_menu
@@ -42,11 +43,17 @@ def Toxicity_detector(text):
         examples=examples)
     return(response[0].prediction)
 
+################ Function to Detoxify Text in two steps - restructure text and Retain language #########################################333
 
 def Detoxify_text(text):
+    return(Rewrite_text(Detoxify_text2(text)))
+
+################ Detoxify Text ###############################################3333
+
+def Detoxify_text2(text):
     response = co.generate(
     model='command-xlarge-20221108',
-    prompt='detoxify this text: '+ text ,
+    prompt='rewrite this text in a benign way: '+ text,
     max_tokens=30,
     temperature=0.9,
     k=0,
@@ -59,10 +66,29 @@ def Detoxify_text(text):
     return(response.generations[0].text.split("\n")[1])
 
 
-def Receiver():
+########################### Rewrite Text in original Language #####################################################################
 
-    with st.expander("About"):
-        st.write("This App was built for the Cohere 2023 hackathon, Project peace is built on top of Cohere's cutting Edge NLP models, and leveraged to help detect hate speech and detoxify them accross various languages")
+
+def Rewrite_text(text):
+    language = co.detect_language(texts=[text]).results[0].language_name
+    response = co.generate(
+    model='command-xlarge-20221108',
+    prompt='rewrite this text'+ "in {} :".format(language) + text,
+    max_tokens=30,
+    temperature=0.9,
+    k=0,
+    p=0.75,
+    frequency_penalty=0,
+    presence_penalty=0,
+    stop_sequences=[],
+    return_likelihoods='NONE')
+    print(response.generations[0].text)
+    return(response.generations[0].text.split("\n")[1])
+
+
+############# Receiver's Page #####################################################################
+
+def Receiver():
 
     with st.form(key = 'form1', clear_on_submit=False):
         text_message = st.text_area("Write message here")
@@ -81,10 +107,9 @@ def Receiver():
         st.write(i+"\n")
         print(i)
 
-def Sender():
+################################ Sender's Page ###########################################################
 
-    with st.expander("About"):
-        st.write("This App was built for the Cohere 2023 hackathon, Project peace is built on top of Cohere's cutting Edge NLP models, and leveraged to help detect hate speech and detoxify them accross various languages")
+def Sender():
 
     with st.form(key = 'form1', clear_on_submit=True):
         text_message = st.text_area("Write message here")
@@ -118,7 +143,7 @@ def Sender():
         st.write(i+"\n")
         print(i)
 
-
+##################################### Runner #########################################################################
 
 if __name__ == "__main__":
         # ===================== Set page config and background =======================
@@ -128,6 +153,10 @@ if __name__ == "__main__":
                        page_icon=':desktop_computer:', 
                        layout='centered')
     """## Project Peace"""
+    with st.expander("About"):
+        st.write("This App was built for the Cohere 2023 hackathon, Project peace is built on top of Cohere's cutting Edge NLP models, and leveraged to help detect hate speech and detoxify them accross various languages")
+        st.write("Find below a comprehensive list of supported languages.")
+        st.dataframe(pd.read_csv("supported languages cohere.csv"))
 
     with st.sidebar:
         my_page = option_menu(
