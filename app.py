@@ -3,7 +3,8 @@ import pandas as pd
 import cohere 
 import os
 from streamlit_option_menu import option_menu
-cohere_api_key = os.environ['cohere_api_key']
+#cohere_api_key = os.environ['cohere_api_key']
+cohere_api_key = "T1OdZvYpypbU24ShULboDcLRPelL5rxvyQU4sBKN"
 co = cohere.Client(cohere_api_key)
 from cohere.classify import Example
 
@@ -34,6 +35,12 @@ if "receiver_chat" not in st.session_state:
 
 if "prev_message_was_toxic" not in st.session_state:
     st.session_state.prev_message_was_toxic = False
+
+if "prev_message_was_toxic1" not in st.session_state:
+    st.session_state.prev_message_was_toxic1 = False
+
+if "combined_chat" not in st.session_state:
+    st.session_state.combined_chat = []
 
 def Toxicity_detector(text):
     inputs = [text]
@@ -90,7 +97,7 @@ def Rewrite_text(text):
 
 def Receiver():
 
-    with st.form(key = 'form1', clear_on_submit=False):
+    with st.form(key = 'formR', clear_on_submit=False):
         text_message = st.text_area("Write message here")
         submit_button = st.form_submit_button(label="send")
 
@@ -111,7 +118,7 @@ def Receiver():
 
 def Sender():
 
-    with st.form(key = 'form1', clear_on_submit=True):
+    with st.form(key = 'formS', clear_on_submit=True):
         text_message = st.text_area("Write message here")
         submit_button = st.form_submit_button(label="send")
 
@@ -142,6 +149,74 @@ def Sender():
     for i in st.session_state.sender_chat[-5:]:
         st.write(i+"\n")
         print(i)
+    
+def Sender1():
+
+    with st.form(key = 'formS1', clear_on_submit=True):
+        text_message1 = st.text_area("User 1")
+        submit_button1 = st.form_submit_button(label="send")
+
+    if submit_button1 or st.session_state.prev_message_was_toxic1:
+        if Toxicity_detector(text_message1) == "Benign":
+            st.session_state.combined_chat.append(text_message1)
+        else:
+            st.session_state.prev_message_was_toxic1 = True
+            st.error("This message is toxic, should i detoxify it?")
+            col4,col5, col6 = st.columns([1,1,1])
+            with col4:
+                if st.button('Yes, detoxify'):
+                    print("Detoxifying.....................................................")
+                    try:
+                        st.session_state.combined_chat.append(Detoxify_text(text_message1))
+                        st.session_state.prev_message_was_toxic1 = False
+                    except Exception:
+                        st.warning("Text retracted, Could not detoxify")
+            with col5:
+                if st.button("No, send as is"):
+                    st.session_state.combined_chat.append(text_message1)
+                    st.session_state.prev_message_was_toxic1 = False
+            with col6:
+                if st.button("Retract message"):
+                    st.success("Message retracted")
+                    st.session_state.prev_message_was_toxic1 = False
+                    
+    for i in st.session_state.combined_chat[-5:]:
+        st.write(i+"\n")
+        print(i)
+
+def Sender2():
+
+    with st.form(key = 'formS2', clear_on_submit=True):
+        text_message2 = st.text_area("User 2")
+        submit_button = st.form_submit_button(label="send")
+
+    if submit_button or st.session_state.prev_message_was_toxic:
+        if Toxicity_detector(text_message2) == "Benign":
+            st.session_state.combined_chat.append(text_message2)
+        else:
+            st.session_state.prev_message_was_toxic = True
+            st.error("This message is toxic, should i detoxify it?")
+            col7,col8, col9 = st.columns([1,1,1])
+            with col7:
+                if st.button('Yes, detoxify'):
+                    print("Detoxifying.....................................................")
+                    try:
+                        st.session_state.combined_chat.append(Detoxify_text(text_message2))
+                        st.session_state.prev_message_was_toxic = False
+                    except Exception:
+                        st.warning("Text retracted, Could not detoxify")
+            with col8:
+                if st.button("No, send as is"):
+                    st.session_state.combined_chat.append(text_message2)
+                    st.session_state.prev_message_was_toxic = False
+            with col9:
+                if st.button("Retract message"):
+                    st.success("Message retracted")
+                    st.session_state.prev_message_was_toxic = False
+                    
+    for i in st.session_state.combined_chat[-5:]:
+        st.write(i+"\n")
+        print(i)
 
 ##################################### Runner #########################################################################
 
@@ -161,12 +236,17 @@ if __name__ == "__main__":
     with st.sidebar:
         my_page = option_menu(
             menu_title=None,
-            options = ["Receiver's Mode","Sender's Mode"],
-            icons=["arrow-down-right-circle-fill", "send"],
+            options = ["Receiver's Mode","Sender's Mode", "Combined"],
+            icons=["arrow-down-right-circle-fill", "send", "send"],
         )
     if my_page == "Receiver's Mode":
         Receiver()
     elif my_page == "Sender's Mode":
         Sender()
+    elif my_page == "Combined":
+            Sender1()
+            Sender2()
+
+
     else:
         st.write("Noting to see here use the side menu")
