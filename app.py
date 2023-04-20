@@ -1,11 +1,11 @@
 import streamlit as st
 import pandas as pd
-#import cohere 
+import cohere 
 import os
 from streamlit_option_menu import option_menu
 cohere_api_key = os.environ['cohere_api_key']
-#co = cohere.Client(cohere_api_key)
-#from cohere.classify import Example
+co = cohere.Client(cohere_api_key)
+from cohere.classify import Example
 
 examples = [
     Example("you are hot trash", "Toxic"),  
